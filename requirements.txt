@@ -1,2 +1,11 @@
+imbalanced-learn
+kneed
+matplotlib
+pandas
+numpy
+pymongo
+python-dotenv
+scikit-learn
 wincertstore==0.2
+xgboost==0.90
 -e .
