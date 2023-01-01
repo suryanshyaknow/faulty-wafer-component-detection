@@ -4,6 +4,8 @@ import os
 import argparse
 from wafer.components.data_validation import DataValidation
 from wafer.components.data_ingestion import DataIngestion
+from wafer.components.data_preparation.data_preparation import DataPreparation
+
 
 @dataclass
 class TrainingPipeline:
@@ -33,6 +35,9 @@ class TrainingPipeline:
             ingestion_artifact = data_ingestion.initiate()
 
             ######################### DATA PREPARATION #####################################
+            data_prep = DataPreparation(
+                data_ingestion_artifact=ingestion_artifact)
+            data_prep_artifact = data_prep.initiate()
 
             ######################### MODEL TRAINING #######################################
 
@@ -43,6 +48,7 @@ class TrainingPipeline:
             ...
         except Exception as e:
             lg.exception(e)
+            raise e
         else:
             lg.info("Training Pipeline ran with success!")
 

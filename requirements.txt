@@ -1,4 +1,3 @@
-imbalanced-learn
 kneed
 matplotlib
 pandas

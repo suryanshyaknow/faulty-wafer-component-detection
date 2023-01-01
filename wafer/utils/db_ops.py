@@ -77,9 +77,9 @@ class MongoDBOperations:
                 lg.info("..said collection selected successfully!")
             else:
                 lg.warning(
-                    f"collection \"{self.collection_name}\" not found in the database, gotta create it..")
+                    f'collection "{self.collection_name}" not found in the database, gotta create it..')
                 lg.info(
-                    f"creating the collection \"{self.collection_name}\"..")
+                    f'creating the collection "{self.collection_name}"..')
                 self.collection = self.database[self.collection_name]
                 lg.info("..said collection created successfully!")
         except Exception as e:
@@ -100,7 +100,7 @@ class MongoDBOperations:
             self.createOrselectCollection()
 
             lg.info(
-                f"dumping the \"{data_desc}\" to the collection \"{self.collection_name}\"..")
+                f'dumping the "{data_desc}" to the collection "{self.collection_name}"..')
             self.collection.insert_many(records)
             ...
         except Exception as e:
