@@ -11,6 +11,7 @@ FEATURE_STORE_FILE = "wafers.csv"
 PREPROCESSOR = "preprocessor.pkl"
 CLUSTERER = "clusterer.pkl"
 ELBOW_PLOT = "kmeans_elbow.png"
+MODELS_PERFORMANCE_REPORT = "report.yaml"
 
 
 @dataclass
@@ -77,6 +78,7 @@ class DataIngestionConfig:
             lg.exception(e)
             raise e
 
+
 class DataPreparationConfig:
     def __init__(self):
         try:
@@ -100,3 +102,32 @@ class DataPreparationConfig:
             ...
         except Exception as e:
             lg.exception
+
+
+class ModelTrainingConfig:
+    def __init__(self):
+        try:
+            training_artifacts_config = TrainingArtifactsConfig()
+            # Model Training's Artifacts dir
+            self.model_training_dir = os.path.join(
+                training_artifacts_config.artifacts_dir, "model_training")
+
+            # Train-Test Split params
+            self.test_size = 1/3
+            self.random_state = 42
+            # Cluster based Models dir
+            self.cluster_based_models_dir = os.path.join(
+                self.model_training_dir, "cluster_based_models")
+            # Cross-Validation params
+            self.cv_for_eval = 5
+            self.cv_for_hypertuning = 2
+            # Models' Performance Report
+            self.performance_report_path = os.path.join(
+                self.model_training_dir, "models_performace_report", MODELS_PERFORMANCE_REPORT)
+            # Model Evaluation params
+            self.expected_score = .85
+            self.overfit_thresh = .1
+            ...
+        except Exception as e:
+            lg.exception(e)
+            raise e
