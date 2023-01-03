@@ -11,7 +11,7 @@ FEATURE_STORE_FILE = "wafers.csv"
 PREPROCESSOR = "preprocessor.pkl"
 CLUSTERER = "clusterer.pkl"
 ELBOW_PLOT = "kmeans_elbow.png"
-MODELS_PERFORMANCE_REPORT = "report.yaml"
+MODELS_PERFORMANCE_REPORT = "report.json"
 
 
 @dataclass
@@ -125,7 +125,6 @@ class ModelTrainingConfig:
             self.performance_report_path = os.path.join(
                 self.model_training_dir, "models_performace_report", MODELS_PERFORMANCE_REPORT)
             # Model Evaluation params
-            self.expected_score = .85
             self.overfit_thresh = .1
             ...
         except Exception as e:

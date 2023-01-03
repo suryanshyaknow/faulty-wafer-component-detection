@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import numpy as np
 import joblib
+import yaml
 from wafer.logger import lg
 from typing import Dict, List, Tuple
 
@@ -38,6 +39,21 @@ class BasicUtils:
         except Exception as e:
             lg.exception(e)
             raise e
+
+    @classmethod
+    def write_json_file(cls, data: dict, file_path: str, file_desc: str):
+        try:
+            lg.info(f'Readying the "{file_desc}" as json file at "{file_path}"..')
+            # Make sure the dir to store the desired json file exist
+            file_dir = os.path.dirname(file_path)
+            os.makedirs(file_dir, exist_ok=True)
+            json.dump(data, open(file_path, "w+"), indent=4)
+            ...
+        except Exception as e:
+            lg.exception(e)
+            raise e
+        else:
+            lg.info(f'..{file_desc} prepared successfully!')
 
     @classmethod
     def get_features_and_labels(cls, df: pd.DataFrame, target: List, desc: str) -> Tuple:
@@ -86,7 +102,7 @@ class BasicUtils:
         """
         try:
             lg.info(f"\nColumns to be dropped: \n{cols_to_drop}")
-            lg.info(f"dropping above columns from the \"{desc}\" dataset..")
+            lg.info(f'dropping above columns from the "{desc}" dataset..')
             df_new = df.drop(columns=cols_to_drop, axis=1)
             lg.info("..said columns dropped successfully!")
             return df_new
@@ -380,6 +396,29 @@ class BasicUtils:
                 raise Exception("Uh oh! as it seems the desired model in the given dir doesn\'t even reside!")
             # Load and Return the desired model
             return joblib.load(model_path)
+            ...
+        except Exception as e:
+            lg.exception(e)
+            raise e
+
+    @classmethod
+    def write_yaml_file(cls, file_path: str, data: dict, desc: str):
+        """Dumps the desired data into an `yaml` file at the said location.
+
+        Raises:
+            e: Throws relevant exception should any error pops up while execution of this method.
+
+        Args:
+            file_path (str): Location where yaml file is to be stored.
+            data (dict): Data that is to be dumped into yaml file.
+            desc (str): Description of the file.
+        """
+        try:
+            lg.info(f'readying the "{desc}" yaml file..')
+            file_dir = os.path.dirname(file_path)
+            os.makedirs(file_dir, exist_ok=True)
+            with open(file_path, "w") as f:
+                yaml.dump(data, f)
             ...
         except Exception as e:
             lg.exception(e)

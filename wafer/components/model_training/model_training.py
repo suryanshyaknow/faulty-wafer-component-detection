@@ -7,6 +7,7 @@ from wafer.entities.config import ModelTrainingConfig
 from wafer.components.model_training.model_selection import BestModelSelection
 from wafer.utils.file_ops import BasicUtils
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
 from dataclasses import dataclass
 
 
@@ -24,6 +25,7 @@ class ModelTraining:
 
     data_prep_artifact: DataPreparationArtifact
     model_training_config = ModelTrainingConfig()
+    repo = {}  # dict for Model's Perfromance Reports
 
     def initiate(self) -> ModelTrainingArtifact:
         try:
@@ -44,6 +46,8 @@ class ModelTraining:
             for i in n_clusters:
                 lg.info(f"\n{'*'*27} CLUSTER {i} {'*'*40}")
 
+                cluster_key = f"Cluster {i}"
+                self.repo[cluster_key] = {}
                 ############################### Filter Cluster data ############################################
                 # filter cluster data
                 lg.info(f'filtering "Cluster {i}" instances..')
@@ -68,15 +72,82 @@ class ModelTraining:
                 best_mod_name, best_mod = model_selection.get_best_model()
                 lg.info(
                     f'BEST MODEL FOR "Cluster {i}" TURNS OUTTA BE: "{best_mod_name}"')
+                self.repo[cluster_key]["model"] = best_mod
+
+                ################################## Overfitting Check ###########################################
+                if len(np.unique(y_train)) == 0:  # then can't use `roc_auc_score`, Will go ahead with `accuracy`
+                    # Performance on Training set
+                    train_acc = best_mod.score(X_train, y_train)
+                    lg.info(
+                        f'Best model\'s "{best_mod}" Accuracy on training set: {train_acc}')
+                    self.repo[cluster_key]["training Accuracy"] = round(
+                        train_acc, 3)
+
+                    # Performance on Test set
+                    test_acc = best_mod.score(X_test, y_test)
+                    lg.info(
+                        f'Best model\'s "{best_mod}" Accuracy on test set: {test_acc}')
+                    self.repo[cluster_key]["test Accuracy"] = round(
+                        test_acc, 3)
+
+                    # Overfitting Check
+                    lg.info("Performing check for Overfitting..")
+                    diff = abs(train_acc - test_acc)
+                    lg.info(
+                        f"Overfitting Threshold: {self.model_training_config.overfit_thresh}")
+                    lg.info(f"the difference we got : {diff}")
+                    if diff > self.model_training_config.overfit_thresh:
+                        lg.warning(
+                            f"Since the difference between Accuracies on training and test set is greater than the overfitting thresh i.e {self.model_training_config.overfit_thresh}, the model definitely Overfits! ")
+                    else:
+                        lg.info("Model ain't Overfitting. We're good to go!")
+
+                else:  # gonna go ahead with `roc_auc_score`
+                    # Performance on Training set
+                    y_train_pred = best_mod.predict(X_train)
+                    train_auc = roc_auc_score(y_train, y_train_pred)
+                    lg.info(
+                        f'Best model\'s "{best_mod}" AUC on training set: {train_auc}')
+                    self.repo[cluster_key]["train AUC"] = round(train_auc, 3)
+
+                    # Performance on Test set
+                    y_test_pred = best_mod.predict(X_test)
+                    test_auc = roc_auc_score(y_test, y_test_pred)
+                    lg.info(
+                        f'Best model\'s "{best_mod}" AUC on test set: {test_auc}')
+                    self.repo[cluster_key]["test AUC"] = round(test_auc, 3)
+
+                    # Overfitting Check
+                    lg.info("Performing check for Overfitting..")
+                    diff = abs(train_auc - test_auc)
+                    lg.info(
+                        f"Overfitting Threshold: {self.model_training_config.overfit_thresh}")
+                    lg.info(f"the difference we got : {diff}")
+                    if diff > self.model_training_config.overfit_thresh:
+                        lg.warning(
+                            f"Since the difference between AUCs on training and test set is greater than the overfitting thresh i.e {self.model_training_config.overfit_thresh}, the model definitely Overfits! ")
+                    else:
+                        lg.info("Model ain't Overfitting. We're good to go!")
 
                 ########################## Save best Model for given Cluster ###################################
                 lg.info(
                     f'Saving the best model "{best_mod_name}" built for "Cluster {i}"..')
                 BasicUtils.save_cluster_based_model(
-                    model=best_mod, model_name=best_mod_name, model_dir=self.model_training_config.model_training_dir, cluster=i)
+                    model=best_mod, model_name=best_mod_name, model_dir=self.model_training_config.cluster_based_models_dir, cluster=i)
                 lg.info(f'..best model "{best_mod_name}" saved successfully!')
 
+                ############################# Save Models Performance Report ###################################
+                lg.info("Readying the Models Performance Report..")
+                BasicUtils.write_json_file(
+                    file_path=self.model_training_config.performance_report_path, data=self.repo, file_desc="Models Performance Report")
+                lg.info("Models Performance Report prepared successfully!")
+
             ########################### Prepare the Model Training Artifact ####################################
+            model_training_artifact = ModelTrainingArtifact(
+                cluster_based_models_dir=self.model_training_config.cluster_based_models_dir,
+                performance_report_path=self.model_training_config.performance_report_path)
+            lg.info(f"Data Preparation Artifact: {data_prep_artifact}")
+            lg.info("Data Preparation completed!")
 
             ...
         except Exception as e:

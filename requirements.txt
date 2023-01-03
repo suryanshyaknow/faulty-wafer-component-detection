@@ -4,6 +4,7 @@ pandas
 numpy
 pymongo
 python-dotenv
+PyYAML
 scikit-learn
 wincertstore==0.2
 xgboost==0.90

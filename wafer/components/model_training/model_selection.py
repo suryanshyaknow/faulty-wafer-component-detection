@@ -29,6 +29,9 @@ class BestModelSelection:
     xgb_clf = XGBClassifier(objective='binary:logistic')
     random_clf = RandomForestClassifier(random_state=42)
 
+    # booleans
+    use_accuracy = None
+
     def _choose_best_candidate_model(self) -> str:
         try:
             lg.info("Quest for choosing the `best candidate model` begins..")
@@ -37,9 +40,9 @@ class BestModelSelection:
 
             ####################### Evaluation using Cross-Validation #########################
             cross_eval_test_scores = []
-
-            # then can't use `roc_auc_score`, Will go ahead with `accuracy`
-            if len(np.unique(self.y_train)) == 0:
+            
+            if len(np.unique(self.y_train)) == 0:  # then can't use `roc_auc_score`, Will go ahead with `accuracy`
+                self.use_accuracy = True
 
                 # ******************** Evaluating the Random Forest Clf ***********************
                 lg.info(
@@ -101,6 +104,7 @@ class BestModelSelection:
                 return best_candidate[1]
 
             else:  # gonna go ahead with `roc_auc_score` as performance metric
+                self.use_accuracy = False
 
                 # ******************** Evaluating the Random Forest Clf ***********************
                 lg.info(
@@ -170,17 +174,31 @@ class BestModelSelection:
                 'max_depth': [3, 5, 6],
                 'n_estimators': [100, 200, 300, 500]
             }
-            # commence GridSearchCV
-            self.grid_search = GridSearchCV(
-                self.xgb_clf, param_grid=grid_params, cv=self.cv_for_hypertuning, verbose=3)
-            self.grid_search.fit(self.X_train, self.y_train)
-            lg.info(
-                f"..GridSearchCV finished successfully with best_score_={self.grid_search.best_score_}!")
-            lg.info(
-                f"XGBClassifier's best params: {self.grid_search.best_params_}")
 
-            lg.info('Returning the "XGBClassifier" trained using best_params_..')
-            return self.grid_search.best_estimator_
+            if self.use_accuracy:
+                # commence GridSearchCV
+                self.grid_search = GridSearchCV(
+                    self.xgb_clf, param_grid=grid_params, cv=self.cv_for_hypertuning, verbose=3)
+                self.grid_search.fit(self.X_train, self.y_train)
+                lg.info(
+                    f"..GridSearchCV finished successfully with best_score_={self.grid_search.best_score_}!")
+                lg.info(
+                    f"XGBClassifier's best params: {self.grid_search.best_params_}")
+
+                lg.info('Returning the "XGBClassifier" trained using best_params_..')
+                return self.grid_search.best_estimator_
+            else:  # use the AUC as performance metric
+                # commence GridSearchCV
+                self.grid_search = GridSearchCV(
+                    self.xgb_clf, param_grid=grid_params, cv=self.cv_for_hypertuning, verbose=3, scoring='roc_auc')
+                self.grid_search.fit(self.X_train, self.y_train)
+                lg.info(
+                    f"..GridSearchCV finished successfully with best_score_={self.grid_search.best_score_}!")
+                lg.info(
+                    f"XGBClassifier's best params: {self.grid_search.best_params_}")
+
+                lg.info('Returning the "XGBClassifier" trained using best_params_..')
+                return self.grid_search.best_estimator_
             ...
         except Exception as e:
             lg.exception(e)
@@ -197,18 +215,33 @@ class BestModelSelection:
                 "max_depth": [3, 5, 6],
                 "max_features": ['auto', 'log2']
             }
-            # commmence GridSearchCV
-            self.grid_search = GridSearchCV(
-                self.random_clf, param_grid=grid_params, cv=self.cv_for_hypertuning, verbose=3)
-            self.grid_search.fit(self.X_train, self.y_train)
-            lg.info(
-                f"..GridSearchCV finished successfully with best_score_={self.grid_search.best_score_}!")
-            lg.info(
-                f"RandomForestClassifier's best params: {self.grid_search.best_params_}")
 
-            lg.info(
-                'Returning the "RandomForestClassifier" trained using best_params_..')
-            return self.grid_search.best_estimator_
+            if self.use_accuracy:
+                # commmence GridSearchCV
+                self.grid_search = GridSearchCV(
+                    self.random_clf, param_grid=grid_params, cv=self.cv_for_hypertuning, verbose=3)
+                self.grid_search.fit(self.X_train, self.y_train)
+                lg.info(
+                    f"..GridSearchCV finished successfully with best_score_={self.grid_search.best_score_}!")
+                lg.info(
+                    f"RandomForestClassifier's best params: {self.grid_search.best_params_}")
+
+                lg.info(
+                    'Returning the "RandomForestClassifier" trained using best_params_..')
+                return self.grid_search.best_estimator_
+            else:  # use the AUC as performance metric
+                # commmence GridSearchCV
+                self.grid_search = GridSearchCV(
+                    self.random_clf, param_grid=grid_params, cv=self.cv_for_hypertuning, verbose=3)
+                self.grid_search.fit(self.X_train, self.y_train)
+                lg.info(
+                    f"..GridSearchCV finished successfully with best_score_={self.grid_search.best_score_}!")
+                lg.info(
+                    f"RandomForestClassifier's best params: {self.grid_search.best_params_}")
+
+                lg.info(
+                    'Returning the "RandomForestClassifier" trained using best_params_..')
+                return self.grid_search.best_estimator_
             ...
         except Exception as e:
             lg.exception(e)
