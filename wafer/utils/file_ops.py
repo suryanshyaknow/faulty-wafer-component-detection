@@ -27,7 +27,7 @@ class BasicUtils:
         """
         try:
             lg.info(
-                f"fetching the data from the \"{file_desc}\" lying at \"{file_path}\"..")
+                f'fetching the data from the "{file_desc}" lying at "{file_path}"..')
             with open(file_path, 'r') as f:
                 data = json.load(f)
                 lg.info("data fetched successfully!")
@@ -169,7 +169,7 @@ class BasicUtils:
             obj_desc (str): Object's description.
 
         Raises:
-            e: Throws relevant exception if any error pops while saving the desired object.
+            e: Throws relevant exception if any error pops while saving up the desired object.
         """
         try:
             lg.info(f'Saving the "{obj_desc}" at "{file_path}"..')
@@ -192,7 +192,8 @@ class BasicUtils:
             obj_desc (str): Description of the said object.
 
         Raises:
-            e: Throws relevant exception if any error pops up while loading or returning the desired object.
+            Exception: Raises exception should the desired object at the given location doesn't exist.
+            e: Throws relevant exception should any error pops up while loading or returning the desired object.
 
         Returns:
             object: Loaded object.
@@ -201,9 +202,9 @@ class BasicUtils:
             lg.info(f'loading the "{obj_desc}"..')
             if not os.path.exists(file_path):
                 lg.exception(
-                    'Uh oh! Looks like the given file path or the object doesn\'t even exist!')
+                    'Uh oh! it seems the desired object at the given location doesn\'t exist!')
                 raise Exception(
-                    'Uh oh! Looks like the given file path or the object doesn\'t even exist!')
+                    'Uh oh! it seems the desired object at the given location doesn\'t exist!')
 
             lg.info(f'"{obj_desc}" loaded successfully!')
             return joblib.load(open(file_path, 'rb'))
@@ -247,16 +248,17 @@ class BasicUtils:
             desc (str): Description of the csv file.
 
         Raises:
-            e: Throws relevant exception if any error pops up while loading or returning the desired csv file.
+            Exception: Raises exception should the desired csv file at the given location doesn't exist.
+            e: Throws relevant exception should any error pops up while execution of this method.
         """
         try:
             lg.info(f'Loading the "{desc} dataset" from "{file_path}"..')
 
             if not os.path.exists(file_path):
                 lg.error(
-                    'Uh Oh! Looks like the given file path doesn\'t even exist!')
+                    'Uh Oh! Looks like the desired csv file at the given location doesn\'t exist!')
                 raise Exception(
-                    'Uh Oh! Looks like the given file path doesn\'t even exist!')
+                    'Uh Oh! Looks like the desired csv file at the given location doesn\'t exist!')
 
             lg.info(f'"{desc} dataset" loaded successfully!')
             return pd.read_csv(file_path)
@@ -300,6 +302,7 @@ class BasicUtils:
             desc (str): Description of the numpy array.
 
         Raises:
+            Exception: Raises exception if the desired array doesn't even exist.
             e: Throws relevant exception if any error pops up while loading or returning the desired numpy array.
         """
         try:
@@ -307,9 +310,9 @@ class BasicUtils:
 
             if not os.path.exists(file_path):
                 lg.exception(
-                    'Uh Oh! Looks like the said file path or the numpy array doesn\'t even exist!')
+                    'Uh Oh! Looks like the desired numpy array at the given location doesn\'t exist!')
                 raise Exception(
-                    'Uh Oh! Looks like the said file path or the numpy array doesn\'t even exist!')
+                    'Uh Oh! Looks like the desired numpy array at the given location doesn\'t exist!')
             else:
                 lg.info(f'"{desc} array" loaded successsfully!')
                 return np.load(open(file_path, 'rb'))
@@ -317,3 +320,69 @@ class BasicUtils:
         except Exception as e:
             lg.exception(e)
             raise e
+
+    @classmethod
+    def save_cluster_based_model(cls, model: object, model_name: str, model_dir: str, cluster: int):
+        """Saves the given model at `model_dir` for the given cluster. 
+        Genrates the model file's name by starting off with the cluster's number followed by `double dash` 
+        and then the given model's name. 
+
+        Args:
+            model (object): Model that's to be saved.
+            model_name (str): Name of the given model.
+            model_dir (str): File directory where the model is to be saved.
+            cluster (int): Cluster number for whom the given model is built upon.
+
+        Raises:
+            e: Raise relevant exception should any sort of error pops up while execution of this method.
+        """
+        try:
+            # Make sure the Model dir does exist
+            os.makedirs(model_dir, exist_ok=True)
+            # Prepare Model's path
+            model_file = f"{cluster}__{model_name}.pkl"
+            model_path = os.path.join(model_dir, model_file)
+            # Save model
+            lg.info(f'Saving the "{model_name}" as "{model_file}"..')
+            joblib.dump(model, model_path)
+            ...
+        except Exception as e:
+            lg.exception(e)
+            raise e
+        else:
+            lg.info(f'"{model_name}" saved at "{model_dir}" successfully!')
+
+    @classmethod
+    def load_cluster_based_model(cls, model_dir: str, cluster: int) -> object:
+        """Loads the desired model built upon the given cluster from the given Models file directory. 
+
+        Args:
+            model_dir (str): Models dir from where the desired model's gotta be fetched.
+            cluster (int): Clsuter's number on which the desired model is built upon.
+
+        Raises:
+            Exception: Raises exception should the desired model in the given dir doesn't even reside.
+            e: Raise relevant exception should any sort of error pops up while execution of this method.
+
+        Returns:
+            object: Loaded model.
+        """
+        try:
+            # figure out the model's file
+            models = os.listdir(model_dir)
+            for model in models:
+                if model.startswith(f"{cluster}"):
+                    model_file = model
+            # Model's path from where model is to be fetched            
+            model_path = os.path.join(model_dir, model_file)
+            if not os.path.exists(model_path):
+                lg.exception("Uh oh! as it seems the desired model in the given dir doesn\'t even reside!")
+                raise Exception("Uh oh! as it seems the desired model in the given dir doesn\'t even reside!")
+            # Load and Return the desired model
+            return joblib.load(model_path)
+            ...
+        except Exception as e:
+            lg.exception(e)
+            raise e
+
+    
