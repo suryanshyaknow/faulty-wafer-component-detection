@@ -8,6 +8,8 @@ RAW_DATA_DIR = "training_batch_files"
 TRAINING_SCHEMA = "schema_training.json"
 PREDICTION_SCHEMA = "schema_prediction.json"
 FEATURE_STORE_FILE = "wafers.csv"
+TRAINING_SET = "train.csv"
+TEST_SET = "test.csv"
 PREPROCESSOR = "preprocessor.pkl"
 CLUSTERER = "clusterer.pkl"
 ELBOW_PLOT = "kmeans_elbow.png"
@@ -70,9 +72,15 @@ class DataIngestionConfig:
             self.data_ingestion_dir = os.path.join(
                 training_artifacts_config.artifacts_dir, "data_ingestion")
 
-            # Feature Store Dataset dir
+            # Feature Store Dataset path
             self.feature_store_file_path = os.path.join(
                 self.data_ingestion_dir, "feature_store", FEATURE_STORE_FILE)
+            self.test_size = 0.2
+            self.random_state = 42
+            # Training Set path
+            self.training_set_path = os.path.join(self.data_ingestion_dir, "datasets", TRAINING_SET)
+            # Test Set path
+            self.test_set_path = os.path.join(self.data_ingestion_dir, "datasets", TEST_SET)
             ...
         except Exception as e:
             lg.exception(e)
@@ -97,8 +105,8 @@ class DataPreparationConfig:
             self.elbow_plot_path = os.path.join(
                 self.data_preparation_dir, "plots", ELBOW_PLOT)
             # Transformed Feature Store dataset path
-            self.transformed_feature_store_file_path = os.path.join(
-                self.data_preparation_dir, "preprocessed", FEATURE_STORE_FILE.replace(".csv", ".npz"))
+            self.prepared_training_set_path = os.path.join(
+                self.data_preparation_dir, "preprocessed", TRAINING_SET.replace(".csv", ".npz"))
             ...
         except Exception as e:
             lg.exception

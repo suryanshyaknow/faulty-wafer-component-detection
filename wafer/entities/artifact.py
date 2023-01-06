@@ -10,13 +10,15 @@ class DataValidationArtifact:
 @dataclass
 class DataIngestionArtifact:
     feature_store_file_path: str
+    training_set_path: str
+    test_set_path: str
 
 
 @dataclass
 class DataPreparationArtifact:
     preprocessor_path: str
     clusterer_path: str
-    transformed_feature_store_file_path: str
+    prepared_training_set_path: str
 
 @dataclass
 class ModelTrainingArtifact:

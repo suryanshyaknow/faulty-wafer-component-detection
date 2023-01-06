@@ -6,6 +6,8 @@ from wafer.CONFIG import DatabaseConfig
 from wafer.entities.config import DataIngestionConfig
 from wafer.entities.artifact import DataIngestionArtifact, DataValidationArtifact
 from wafer.utils.db_ops import MongoDBOperations
+from wafer.utils.file_ops import BasicUtils
+from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 
 
@@ -74,21 +76,30 @@ class DataIngestion:
 
             ################## Read data from Database and Prepare "Feature Store" set #########################
             lg.info('readying the "feature store" set..')
-            feature_store_set = db_ops.getDataAsDataFrame()
+            feature_store_df = db_ops.getDataAsDataFrame()
             lg.info(
-                f'Shape of the "feature store" set: {feature_store_set.shape}')
-            lg.info('saving the "feature store" set..')
-            # make sure the dir for saving "Feature Store" set does exist
-            feature_store_dir = os.path.dirname(
-                self.data_ingestion_config.feature_store_file_path)
-            os.makedirs(feature_store_dir, exist_ok=True)
-            feature_store_set.to_csv(
-                self.data_ingestion_config.feature_store_file_path, index=None)
+                f'Shape of the "feature store" set: {feature_store_df.shape}')
+            BasicUtils.save_dataframe_as_csv(
+                file_path=self.data_ingestion_config.feature_store_file_path, df=feature_store_df, desc="feature store")
             lg.info('..prepared the "feature store" set successfully!')
+
+            ############################### Perform Training-Test Split ########################################
+            lg.info('Splitting the data into training and test subsets..')
+            train, test = train_test_split(
+                feature_store_df, test_size=self.data_ingestion_config.test_size, random_state=self.data_ingestion_config.random_state)
+            lg.info("data split into test and training subsets successfully!")
+            # Save the test and training sets to their respective dirs
+            lg.info("Saving the test and training subsets to their respective dirs..")
+            BasicUtils.save_dataframe_as_csv(
+                file_path=self.data_ingestion_config.training_set_path, df=train, desc="training")
+            BasicUtils.save_dataframe_as_csv(
+                file_path=self.data_ingestion_config.test_set_path, df=test, desc="test")
+            lg.info("test and training subsets saved succesfully!")
 
             ########################### Prepare the Data Ingestion Artifact ####################################
             data_ingestion_artifact = DataIngestionArtifact(
-                feature_store_file_path=self.data_ingestion_config.feature_store_file_path)
+                feature_store_file_path=self.data_ingestion_config.feature_store_file_path,
+                training_set_path=self.data_ingestion_config.training_set_path, test_set_path=self.data_ingestion_config.test_set_path)
             lg.info(f"Data Ingestion Artifact: {data_ingestion_artifact}")
             lg.info("DATA INGESTION completed!")
 
