@@ -75,6 +75,8 @@ class DataPreparation:
             wafers = BasicUtils.drop_columns(
                 wafers, cols_to_drop=cols_to_drop, desc="feature store")
 
+            lg.info(f"Size of the dataset after dropping redundant features: {wafers.size}")
+
             ########################## Separate the Features and Labels out ####################################
             X, y = BasicUtils.get_features_and_labels(
                 df=wafers, target=[self.target], desc="feature store")

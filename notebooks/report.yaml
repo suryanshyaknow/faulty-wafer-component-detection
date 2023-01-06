@@ -1,0 +1,9 @@
+Cluster 0:
+  test AUC: 0.5
+  train AUC: 1.0
+Cluster 1:
+  test AUC: 0.49230769230769234
+  train AUC: 0.8571428571428572
+Cluster 2:
+  test AUC: 0.5
+  train AUC: 0.5
