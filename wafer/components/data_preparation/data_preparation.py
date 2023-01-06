@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 @dataclass
 class DataPreparation:
-    """Shall be used for preparing the data, before feeding into ML algorithms for training."""
+    """Shall be used for preparing the training data, before feeding into ML algorithms for training."""
     lg.info(
         f'Entered the "{os.path.basename(__file__)[:-3]}.DataTransformation" class')
 
@@ -54,10 +54,10 @@ class DataPreparation:
         try:
             lg.info(f"\n{'='*27} DATA PREPARATION {'='*40}")
 
-            ########################### Fetch the "Feature Store" dataset ######################################
-            lg.info('fetching the "feature store" dataset for data preparation..')
+            ################################# Fetch the Training set ###########################################
+            lg.info('fetching the "training" dataset for data preparation..')
             wafers = BasicUtils.load_csv_as_dataframe(
-                self.data_ingestion_artifact.feature_store_file_path, desc="feature store")
+                self.data_ingestion_artifact.training_set_path, desc="training")
             lg.info("..said dataset fetched successfully!")
 
             ################################ Drop Redundant Features ###########################################
@@ -98,7 +98,7 @@ class DataPreparation:
 
             ################################# Cluster Data Instances ###########################################
             cluster_train_data = ClusterDataInstances(
-                X=X_transformed, desc="feature store", data_prep_config=self.data_prep_config)
+                X=X_transformed, desc="training", data_prep_config=self.data_prep_config)
             clusterer, X_clus = cluster_train_data.create_clusters()
 
             # Save the Clusterer
@@ -110,7 +110,7 @@ class DataPreparation:
             ######################### Configure and Save the Feature Store array ###############################
             wafers_arr = np.c_[X_clus, y]
             BasicUtils.save_numpy_array(
-                file_path=self.data_prep_config.transformed_feature_store_file_path,
+                file_path=self.data_prep_config.prepared_training_set_path,
                 arr=wafers_arr,
                 desc="(transformed) feature store"
             )
@@ -119,7 +119,7 @@ class DataPreparation:
             data_prep_artifact = DataPreparationArtifact(
                 preprocessor_path=self.data_prep_config.preprocessor_path,
                 clusterer_path=self.data_prep_config.clusterer_path,
-                transformed_feature_store_file_path=self.data_prep_config.transformed_feature_store_file_path
+                prepared_training_set_path=self.data_prep_config.prepared_training_set_path
             )
             lg.info(f"Data Preparation Artifact: {data_prep_artifact}")
             lg.info("Data Preparation completed!")

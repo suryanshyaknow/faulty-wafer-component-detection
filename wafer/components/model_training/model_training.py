@@ -31,12 +31,12 @@ class ModelTraining:
         try:
             lg.info(f"\n{'='*27} MODEL TRAINING {'='*40}")
 
-            ############################### Fetch the Feature Store set #########################################
-            lg.info('fetching the transformed "feature store" set..')
+            ############################### Load the "prepared" Training set ####################################
+            lg.info('laoding the prepared training set..')
             wafers = BasicUtils.load_numpy_array(
-                file_path=self.data_prep_artifact.transformed_feature_store_file_path, desc="feature store")
-            lg.info('transformed "feature store" set fetched successfully..')
-            lg.info(f'Shape of the "feature store" set: {wafers.shape}')
+                file_path=self.data_prep_artifact.prepared_training_set_path, desc="training")
+            lg.info('prepared training set fetched successfully..')
+            lg.info(f'Shape of the "training" set: {wafers.shape}')
 
             ########################### Select and Train models based on clusters ##############################
             # Configure unique clusters
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     data_prep_artifact = DataPreparationArtifact(
         preprocessor_path=r'artifacts\01012023__190435\data_preparation\preprocessor\preprocessor.pkl',
         clusterer_path=r'artifacts\01012023__190435\data_preparation\clusterer\clusterer.pkl',
-        transformed_feature_store_file_path=r'artifacts\01012023__190435\data_preparation\preprocessed\wafers.npz')
+        prepared_training_set_path=r'artifacts\01012023__190435\data_preparation\preprocessed\wafers.npz')
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_prep_artifact", default=data_prep_artifact)
