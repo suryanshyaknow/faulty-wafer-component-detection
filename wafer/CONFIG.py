@@ -159,7 +159,7 @@ class ModelRegistryConfig:
             lg.exception(e)
             raise e
 
-    def save_latest_transformer_at(self) -> str:
+    def save_latest_preprocessor_at(self) -> str:
         """Path in the Model Registry to save the latest Preproessor at.
 
         Raises:
