@@ -26,3 +26,14 @@ class ModelTrainingArtifact:
     performance_report_path: str
 
 
+@dataclass
+class ModelEvaluationArtifact:
+    are_models_replaced: bool
+    improved_scores: list
+
+
+@dataclass
+class ModelPushingArtifact:
+    ...
+
+

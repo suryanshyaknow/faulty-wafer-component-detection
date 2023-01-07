@@ -138,3 +138,12 @@ class ModelTrainingConfig:
         except Exception as e:
             lg.exception(e)
             raise e
+
+
+class ModelEvaluationConfig:
+    def __init__(self) -> None:
+        try:
+            self.replace_models_thresh = 0.01
+        except Exception as e:
+            lg.exception(e)
+            raise e
