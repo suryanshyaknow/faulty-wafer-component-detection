@@ -131,7 +131,7 @@ class ModelEvaluation:
                         "..separated clustered features and labels successfully!")
 
                     # Load Cluster based Model from Model Training component's artifact
-                    mod = BasicUtils.load_cluster_based_model(
+                    _, mod = BasicUtils.load_cluster_based_model(
                         model_dir=latest_models_dir, cluster=i)
 
                     # Gauge Model's performance
@@ -185,7 +185,7 @@ class ModelEvaluation:
                         "..separated clustered features and labels successfully!")
 
                     # Load Cluster based Model from Model Registry
-                    mod = BasicUtils.load_cluster_based_model(
+                    _, mod = BasicUtils.load_cluster_based_model(
                         model_dir=older_models_dir, cluster=i)
 
                     # Gauge Model's performance

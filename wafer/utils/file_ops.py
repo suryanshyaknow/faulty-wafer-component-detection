@@ -369,7 +369,7 @@ class BasicUtils:
             lg.info(f'"{model_name}" saved at "{model_dir}" successfully!')
 
     @classmethod
-    def load_cluster_based_model(cls, model_dir: str, cluster: int) -> object:
+    def load_cluster_based_model(cls, model_dir: str, cluster: int) -> Tuple:
         """Loads the desired model built upon the given cluster from the given Models file directory. 
 
         Args:
@@ -381,7 +381,7 @@ class BasicUtils:
             e: Raise relevant exception should any sort of error pops up while execution of this method.
 
         Returns:
-            object: Loaded model.
+            Tuple(str, object): Model's name, Loaded Model respectively.
         """
         try:
             # figure out the model's file
@@ -389,13 +389,15 @@ class BasicUtils:
             for model in models:
                 if model.startswith(f"{cluster}"):
                     model_file = model
+            # Model's name
+            mod_name = model_path.split(".")[0].split("_")[2]
             # Model's path from where model is to be fetched            
             model_path = os.path.join(model_dir, model_file)
             if not os.path.exists(model_path):
                 lg.exception("Uh oh! as it seems the desired model in the given dir doesn\'t even reside!")
                 raise Exception("Uh oh! as it seems the desired model in the given dir doesn\'t even reside!")
             # Load and Return the desired model
-            return joblib.load(model_path)
+            return mod_name, joblib.load(model_path)
             ...
         except Exception as e:
             lg.exception(e)
