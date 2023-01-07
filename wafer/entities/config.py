@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 
 RAW_DATA_DIR = "training_batch_files"
+PREDICTION_BATCHES_DIR = "prediction_batch_files"
 TRAINING_SCHEMA = "schema_training.json"
 PREDICTION_SCHEMA = "schema_prediction.json"
 FEATURE_STORE_FILE = "wafers.csv"
@@ -14,6 +15,7 @@ PREPROCESSOR = "preprocessor.pkl"
 CLUSTERER = "clusterer.pkl"
 ELBOW_PLOT = "kmeans_elbow.png"
 MODELS_PERFORMANCE_REPORT = "report.json"
+PREDICTION_DIR = "predictions"
 
 
 @dataclass
@@ -26,7 +28,9 @@ class BaseConfig:
 class DataSourceConfig:
     raw_data_dir = os.path.join(os.getcwd(), RAW_DATA_DIR)
     training_schema = os.path.join(os.getcwd(), TRAINING_SCHEMA)
-    prediciton_schema = os.path.join(os.getcwd(), PREDICTION_SCHEMA)
+    prediction_schema = os.path.join(os.getcwd(), PREDICTION_SCHEMA)
+    prediction_batches_dir = os.path.join(
+        os.getcwd(), PREDICTION_BATCHES_DIR)
 
 
 @dataclass
@@ -78,9 +82,11 @@ class DataIngestionConfig:
             self.test_size = 0.2
             self.random_state = 42
             # Training Set path
-            self.training_set_path = os.path.join(self.data_ingestion_dir, "datasets", TRAINING_SET)
+            self.training_set_path = os.path.join(
+                self.data_ingestion_dir, "datasets", TRAINING_SET)
             # Test Set path
-            self.test_set_path = os.path.join(self.data_ingestion_dir, "datasets", TEST_SET)
+            self.test_set_path = os.path.join(
+                self.data_ingestion_dir, "datasets", TEST_SET)
             ...
         except Exception as e:
             lg.exception(e)
@@ -148,14 +154,14 @@ class ModelEvaluationConfig:
             lg.exception(e)
             raise e
 
-@dataclass
+
 class ModelPushingConfig:
     def __init__(self) -> None:
         try:
             training_artifacts_config = TrainingArtifactsConfig()
             self.model_pushing_dir = os.path.join(
                 training_artifacts_config.artifacts_dir, "model_pushing")
-            
+
             self.saved_models_dir = os.path.join(
                 self.model_pushing_dir, "saved_models")
             self.to_be_pushed_models_dir = os.path.join(
@@ -167,3 +173,24 @@ class ModelPushingConfig:
         except Exception as e:
             lg.exception(e)
             raise e
+
+
+class PredictionBatchesValidationConfig:
+    def __init__(self) -> None:
+        try:
+            # Predictions Artifacts dir
+            self.prediction_artifacts_dir = os.path.join(
+                os.getcwd(), "prediction_artifacts", f"{datetime.now().strftime('%m%d%Y__%H%M%S')}")
+
+            # Good Prediction Batches dir
+            self.good_data_dir = os.path.join(
+                self.prediction_artifacts_dir, "good_prediction_batches")
+            # Bad Prediction Batches dir
+            self.bad_data_dir = os.path.join(
+                self.prediction_artifacts_dir, "bad_prediction_batches")
+            # Archived Prediction Batches dir
+            self.archived_data_dir = os.path.join(
+                self.prediction_artifacts_dir, "archived_prediction_batches")
+            ...
+        except Exception as e:
+            lg.exception(e)

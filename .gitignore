@@ -163,3 +163,4 @@ cython_debug/
 artifacts
 experimental.ipynb
 saved_models
+prediction_artifacts
