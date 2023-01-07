@@ -157,9 +157,9 @@ class ModelTraining:
 
 if __name__ == "__main__":
     data_prep_artifact = DataPreparationArtifact(
-        preprocessor_path=r'artifacts\01012023__190435\data_preparation\preprocessor\preprocessor.pkl',
-        clusterer_path=r'artifacts\01012023__190435\data_preparation\clusterer\clusterer.pkl',
-        prepared_training_set_path=r'artifacts\01012023__190435\data_preparation\preprocessed\wafers.npz')
+        preprocessor_path=r'artifacts\01072023__012253\data_preparation\preprocessor\preprocessor.pkl',
+        clusterer_path=r'artifacts\01072023__012253\data_preparation\clusterer\clusterer.pkl',
+        prepared_training_set_path=r'artifacts\01072023__012253\data_preparation\preprocessed\train.npz')
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_prep_artifact", default=data_prep_artifact)
