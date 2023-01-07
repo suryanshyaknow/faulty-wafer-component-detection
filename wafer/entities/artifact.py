@@ -19,6 +19,7 @@ class DataPreparationArtifact:
     preprocessor_path: str
     clusterer_path: str
     prepared_training_set_path: str
+    n_clusters: int  # Optimal Clusters made via the Clusterer
 
 @dataclass
 class ModelTrainingArtifact:
@@ -34,6 +35,5 @@ class ModelEvaluationArtifact:
 
 @dataclass
 class ModelPushingArtifact:
-    ...
-
-
+    pushed_models_dir: str
+    saved_models_dir: str

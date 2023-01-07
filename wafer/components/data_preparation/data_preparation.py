@@ -112,15 +112,15 @@ class DataPreparation:
             BasicUtils.save_numpy_array(
                 file_path=self.data_prep_config.prepared_training_set_path,
                 arr=wafers_arr,
-                desc="(transformed) feature store"
-            )
+                desc="(transformed) feature store")
 
             ########################## Prepare the Data Preparation Artifact ###################################
+            n_clusters = len(np.unique(wafers_arr[:, -2]))  # Number of Optimal Clusters made
             data_prep_artifact = DataPreparationArtifact(
                 preprocessor_path=self.data_prep_config.preprocessor_path,
                 clusterer_path=self.data_prep_config.clusterer_path,
-                prepared_training_set_path=self.data_prep_config.prepared_training_set_path
-            )
+                prepared_training_set_path=self.data_prep_config.prepared_training_set_path,
+                n_clusters=n_clusters)
             lg.info(f"Data Preparation Artifact: {data_prep_artifact}")
             lg.info("Data Preparation completed!")
 

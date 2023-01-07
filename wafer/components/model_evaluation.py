@@ -112,9 +112,8 @@ class ModelEvaluation:
                 y_test_kmeans = latest_clusterer.predict(X_test_trans)
                 wafers_test_prep = np.c_[X_test_trans, y_test_kmeans, y_test]
                 # Traverse through each cluster and Gauge each Model's performance on test set
-                n_clusters = np.unique(y_test_kmeans)  # configured unique clusters
                 latest_scores = []
-                for i in n_clusters:
+                for i in range(self.data_prep_artifact.n_clusters):
                     lg.info(
                         f'Gauging the true performance of model on "Cluster {i}" of test set...')
 
@@ -153,7 +152,7 @@ class ModelEvaluation:
 
                 ########################## Evaluate the older Models' performance ###########################
                 # ************************ (Latest Models form Model Registry) ******************************
-                lg.info("EVALUATING THE MODEL REGISTRY MODELS...")
+                lg.info("EVALUATING THE MODELS FROM THE MODEL REGISTRY...")
                 # Drop redundant features (fetch only those that were used in Training)
                 lg.info(
                     "keeping only the features in the test set that were used in the training...")
@@ -239,7 +238,8 @@ if __name__ == "__main__":
     data_prep_artifact = artifact.DataPreparationArtifact(
         preprocessor_path=r'artifacts\01072023__012253\data_preparation\preprocessor\preprocessor.pkl',
         clusterer_path=r'artifacts\01072023__012253\data_preparation\clusterer\clusterer.pkl',
-        prepared_training_set_path=r'artifacts\01072023__012253\data_preparation\preprocessed\train.npz')
+        prepared_training_set_path=r'artifacts\01072023__012253\data_preparation\preprocessed\train.npz',
+        n_clusters=3)
 
     model_training_artifact = artifact.ModelTrainingArtifact(
         cluster_based_models_dir=r'artifacts\01072023__012253\model_training\cluster_based_models',

@@ -39,11 +39,9 @@ class ModelTraining:
             lg.info(f'Shape of the "training" set: {wafers.shape}')
 
             ########################### Select and Train models based on clusters ##############################
-            # Configure unique clusters
-            n_clusters = np.unique(wafers[:, -2]).astype(int)
 
             # Traverse through each cluster and find a best model for it
-            for i in n_clusters:
+            for i in range(self.data_prep_artifact.n_clusters):
                 lg.info(f"\n{'*'*27} CLUSTER {i} {'*'*40}")
 
                 cluster_key = f"Cluster {i}"
@@ -159,7 +157,8 @@ if __name__ == "__main__":
     data_prep_artifact = DataPreparationArtifact(
         preprocessor_path=r'artifacts\01072023__012253\data_preparation\preprocessor\preprocessor.pkl',
         clusterer_path=r'artifacts\01072023__012253\data_preparation\clusterer\clusterer.pkl',
-        prepared_training_set_path=r'artifacts\01072023__012253\data_preparation\preprocessed\train.npz')
+        prepared_training_set_path=r'artifacts\01072023__012253\data_preparation\preprocessed\train.npz',
+        n_clusters=3)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_prep_artifact", default=data_prep_artifact)
