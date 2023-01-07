@@ -146,8 +146,8 @@ class ModelTraining:
             model_training_artifact = ModelTrainingArtifact(
                 cluster_based_models_dir=self.model_training_config.cluster_based_models_dir,
                 performance_report_path=self.model_training_config.performance_report_path)
-            lg.info(f"Data Preparation Artifact: {model_training_artifact}")
-            lg.info("Data Preparation completed!")
+            lg.info(f"Model Training Artifact: {model_training_artifact}")
+            lg.info("Model Training completed!")
 
             ...
         except Exception as e:

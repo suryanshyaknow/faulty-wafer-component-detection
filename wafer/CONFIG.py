@@ -52,10 +52,9 @@ class ModelRegistryConfig:
         try:
             dirs = os.listdir(self.model_registry)
             if len(dirs) == 0:
-                lg.exception(
+                lg.warning(
                     "As of now there are no such directories in the Model Registry!")
-                raise Exception(
-                    "As of now there are no such directories in the Model Registry!")
+                return None
 
             # Typecasting dir names from str to int
             dirs = list(map(int, dirs))
