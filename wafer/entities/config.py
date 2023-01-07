@@ -154,9 +154,11 @@ class ModelPushingConfig:
         try:
             training_artifacts_config = TrainingArtifactsConfig()
             self.model_pushing_dir = os.path.join(
-                training_artifacts_config.artifacts_dir, "model_pushing", "saved_models")
-
-            self.to_be_pushed_model_dir = os.path.join(
+                training_artifacts_config.artifacts_dir, "model_pushing")
+            
+            self.saved_models_dir = os.path.join(
+                self.model_pushing_dir, "saved_models")
+            self.to_be_pushed_models_dir = os.path.join(
                 self.model_pushing_dir, "models")
             self.to_be_pushed_processor_path = os.path.join(
                 self.model_pushing_dir, PREPROCESSOR)

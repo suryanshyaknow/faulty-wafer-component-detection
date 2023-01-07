@@ -77,7 +77,7 @@ class ModelRegistryConfig:
         """
         try:
             latest_dir = self.get_latest_dir_path()
-            lg.info("Getting the `latest models dir` from the Model Registry..")
+            lg.info('Getting the "latest models dir" from the Model Registry..')
             if latest_dir is None:
                 lg.exception(
                     "Even the dir doesn't exist and you are expecting a model, shame!")
@@ -102,7 +102,7 @@ class ModelRegistryConfig:
         """
         try:
             latest_dir = self.get_latest_dir_path()
-            lg.info("Getting the `latest preprocessor path` from the Model Registry..")
+            lg.info('Getting the "latest preprocessor path" from the Model Registry..')
             if latest_dir is None:
                 lg.exception(
                     "Even the dir doesn't exist and you are expecting a preprocessor, shame!")
@@ -125,12 +125,12 @@ class ModelRegistryConfig:
         """
         try:
             latest_dir = self.get_latest_dir_path()
-            lg.info("Getting the `latest Target Encoder path` from the Model Registry..")
+            lg.info('Getting the "latest Target Encoder path" from the Model Registry..')
             if latest_dir is None:
                 lg.exception(
                     "Even the dir doesn't exist and you are expecting a clusterer, shame!")
 
-            return os.path.join(latest_dir, self.target_encoder_dir, CLUSTERER)
+            return os.path.join(latest_dir, self.clusterer_dir, CLUSTERER)
             ...
         except Exception as e:
             lg.exception(e)
@@ -147,8 +147,8 @@ class ModelRegistryConfig:
             str: Latest dir path to save the latest models and relevant artifacts.
         """
         try:
+            lg.info('Configuring the dir path where the "latest artifacts" are to be saved..')
             latest_dir = self.get_latest_dir_path()
-            lg.info("Configuring the dir path where the `latest artifacts` are to be saved..")
 
             if latest_dir is None:
                 return os.path.join(self.model_registry, str(0))
@@ -171,7 +171,7 @@ class ModelRegistryConfig:
         """
         try:
             latest_dir_to_save = self.get_latest_dir_path_to_save()
-            lg.info("Configuring the path where the `latestly built Preprocessor` is to be stored..")
+            lg.info('Configuring the path where the "latestly built Preprocessor" is to be stored..')
             return os.path.join(latest_dir_to_save, self.preprocessor_dir, PREPROCESSOR)
             ...
         except Exception as e:
@@ -190,7 +190,7 @@ class ModelRegistryConfig:
         """
         try:
             latest_dir_to_save = self.get_latest_dir_path_to_save()
-            lg.info("Configuring the path where the `latestly built Clusterer` is to be stored..")
+            lg.info('Configuring the path where the "latestly built Clusterer" is to be stored..')
             return os.path.join(latest_dir_to_save, self.clusterer_dir, CLUSTERER)
             ...
         except Exception as e:
@@ -209,7 +209,7 @@ class ModelRegistryConfig:
         """
         try:
             latest_dir = self.get_latest_dir_path()
-            lg.info("Configuring the path where the `latestly trained Models` are to be stored..")
+            lg.info('Configuring the path where the "latestly trained Models" are to be stored..')
             return os.path.join(latest_dir, self.model_dir)
             ...
         except Exception as e:

@@ -55,10 +55,10 @@ class TrainingPipeline:
             model_eval_artifact = model_eval.initiate()
 
             ######################### MODEL PUSHING ########################################
-            # model_pushing = ModelPushing(
-            #     data_prep_artifact=data_prep_artifact,
-            #     model_training_artifact=model_training_artifact)
-            # model_pushing_artifact = model_pushing.initiate()
+            model_pushing = ModelPushing(
+                data_prep_artifact=data_prep_artifact,
+                model_training_artifact=model_training_artifact)
+            model_pushing_artifact = model_pushing.initiate()
             ...
         except Exception as e:
             lg.exception(e)

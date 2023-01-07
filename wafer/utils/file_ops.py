@@ -390,7 +390,7 @@ class BasicUtils:
                 if model.startswith(f"{cluster}"):
                     model_file = model
             # Model's name
-            mod_name = model_path.split(".")[0].split("_")[2]
+            mod_name = model_file.split(".")[0].split("_")[2]
             # Model's path from where model is to be fetched            
             model_path = os.path.join(model_dir, model_file)
             if not os.path.exists(model_path):
