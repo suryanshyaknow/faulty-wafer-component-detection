@@ -1,6 +1,7 @@
 import os
-import pandas as pd
 import json
+import pandas as pd
+import numpy as np
 from wafer.logger import lg
 from wafer.CONFIG import ModelRegistryConfig
 from wafer.entities.config import PredictionBatchesValidationConfig, DataSourceConfig
@@ -55,7 +56,7 @@ class BatchPredictionPipeline:
 
     def commence(self):
         try:
-            ############################## Validate Prediction Batches ##############################
+            ############################# PREDICTION BATCHES VALIDATION #############################
             # and move them to `Bad Prediction Bacthes` and `Good Prediciton Bacthes` accordingly
             lg.info(f'VALIDATING PREDICITON BATCHES...')
             validate_prediction_batches = DataValidation(
@@ -63,7 +64,7 @@ class BatchPredictionPipeline:
                 schema_path=DataSourceConfig().prediction_schema, schema_desc="prediction schema")
             validation_artifacts = validate_prediction_batches.initiate()
 
-            ############################## Ingest into Database #####################################
+            ############################# PREDICITON BATCHES INGESTION ##############################
             lg.info(f'\n{"="*25} PREDICTION BATCHES INGESTION {"="*30}')
             lg.info("setting up MongoDB credentials and operations..")
             db_ops = MongoDBOperations(
@@ -72,7 +73,7 @@ class BatchPredictionPipeline:
                 collection_name=self.database_config.prediction_collection)
             lg.info(f"setup done with success!")
 
-            # Dump validated data into database
+            # ************************** Dump Validated Data into MongoDB ***************************
             lg.info(
                 f'Before ingesting validated data into MongoDB\'s "{self.database_config.prediction_collection}" collection, stripping it off of all records..')
             db_ops.emptyCollection()
@@ -90,12 +91,42 @@ class BatchPredictionPipeline:
                 all_records += data
                 lg.info(f'"{csv_file}"\'s data fetched successfully!')
             lg.info("..Records from all validated files fetched successfully!")
-            lg.info("Now, dumping all fetched records from all validated files into MongoDB database..")
-            db_ops.dumpData(records=all_records, data_desc="validated Prediction batches")
+            lg.info(
+                "Now, dumping all fetched records from all validated files into MongoDB database..")
+            db_ops.dumpData(records=all_records,
+                            data_desc="validated Prediction batches")
             lg.info(
                 f'..successfully dumped all data from "Good Data" dir into database {self.database_config.database_name}!')
 
-            ########################### Preprocess Prediction Batches ###############################
+            ########################### PREDICTION BATCHES PREPARATION ##############################
+            lg.info(f'\n{"="*25} PREDICTION BATCHES PREPARATION {"="*30}')
+            lg.info('Getting "Prediction Batches Data" from the MongoDB database..')
+            PRED_BATCH = db_ops.getDataAsDataFrame()
+            lg.info("loaded all predicition data from MonogDB database successfully!")
+
+            # ************************* Preprocess Prediciton Instances *****************************
+            # Load Preprocessor from Model Registry
+            preprocessor = BasicUtils.load_object(
+                file_path=self.model_registry_config.get_latest_preprocessor_path, obj_desc="preprocessor")
+            # Select only the features that were used in the Training
+            lg.info('Keeping only the features in the "prediciton data" that were used in the training..')
+            input_feats = preprocessor.feature_names_in_
+            PRED_BATCH  = PRED_BATCH[input_feats]
+            lg.info('..said features kept successfully!')
+            # Preprocess the Prediction Instances
+            lg.info("Preprocessing the prediction instances..")
+            PRED_BATCH_TRANS = preprocessor.transform(PRED_BATCH)
+            lg.info("..preprocessed the predicition instances successfully!")
+
+            # ************************** Cluster Prediciton Instances *******************************
+            # Load Clusterer from Model Registry
+            clusterer = BasicUtils.load_object(
+                file_path=self.model_registry_config.get_latest_clusterer_path, obj_desc="clusterer")
+            # Cluster the Prediction Instances
+            lg.info("Clustering the prediction instances..")
+            y_clus = clusterer.predict(PRED_BATCH_TRANS)
+            PRED_BATCH_CLUS = np.c_[PRED_BATCH_TRANS, y_clus]
+            lg.info("..clustered the prediction instances successfully!")
 
             ################## Traverse through each Cluster and Make predictions ###################
             ...
