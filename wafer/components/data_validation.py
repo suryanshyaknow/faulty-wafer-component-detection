@@ -17,13 +17,15 @@ class DataValidation:
     over to "Archived Data" dir.
     """
 
-    def __init__(self, data_validation_config: Any = DataValidationConfig, 
-    schema_path: str = DataSourceConfig().training_schema, schema_desc: str = "training schema") -> None:
+    def __init__(
+        self, data_validation_config: Any = DataValidationConfig(), files_dir: str = DataSourceConfig().raw_data_dir, 
+        schema_path: str = DataSourceConfig().training_schema, schema_desc: str = "training schema") -> None:
         """Constructor method of the DataValidation class.
 
         Args:
             data_validation_config (Any, optional): Configuration object for Data Validation component. 
             Defaults to DataValidationConfig.
+            files_dir (str): Path of files dir which are to be validated.
             schema_path (str, optional): Path of the schema that's to be taken as reference. Defaults to 
             DataSourceConfig().training_schema.
             schema_desc (str, optional): Schema's description. Defaults to "training schema".
@@ -32,11 +34,10 @@ class DataValidation:
             lg.info(
                 f'Entered the "{os.path.basename(__file__)[:-3]}.DataValidation" class')
             self.data_validation_config = data_validation_config
+            self.files_dir = files_dir
             self.schema_path = schema_path
             self.schema_desc = schema_desc
 
-            self.data_source_config = DataSourceConfig()
-            
             self.good_data_dir = self.data_validation_config.good_data_dir
             self.bad_data_dir = self.data_validation_config.bad_data_dir
             self.archived_data_dir = self.data_validation_config.archived_data_dir
@@ -66,7 +67,8 @@ class DataValidation:
 
             ######################### Validate Files Names using Regex reference ################################
             # and move them accordingly to "Good Data" and "Bad Data" dirs
-            for file_name in os.listdir(self.data_source_config.raw_data_dir):
+            good_files = 0
+            for file_name in os.listdir(self.files_dir):
                 if re.match(regex, file_name):
                     split_at_dot = re.split('.csv', file_name)[0]
                     date_stamp = re.split('_', split_at_dot)[1]
@@ -76,22 +78,25 @@ class DataValidation:
                             lg.info(
                                 f'"{file_name}" validated, moving to the "Good Data" dir"..')
                             shutil.copy(os.path.join(
-                                self.data_source_config.raw_data_dir, file_name), self.good_data_dir)
+                                self.files_dir, file_name), self.good_data_dir)
+                            good_files += 1
                         else:
                             lg.warning(
                                 f'"{file_name}": "Timestamp" couldn\'t match to the expected, file rejected!')
                             shutil.copy(os.path.join(
-                                self.data_source_config.raw_data_dir, file_name), self.bad_data_dir)
+                                self.files_dir, file_name), self.bad_data_dir)
                     else:
                         lg.warning(
                             f'"{file_name}": "Datestamp" couldn\'t match to the expected, file rejected!')
                         shutil.copy(os.path.join(
-                            self.data_source_config.raw_data_dir, file_name), self.bad_data_dir)
+                            self.files_dir, file_name), self.bad_data_dir)
                 else:
                     lg.warning(
                         f'"{file_name}": Invalid filename, file rejected!')
                     shutil.copy(os.path.join(
-                        self.data_source_config.raw_data_dir, file_name), self.bad_data_dir)
+                        self.files_dir, file_name), self.bad_data_dir)
+            lg.info(
+                f'Number of validated files based on "raw files names": {good_files}')
             ...
         except Exception as e:
             lg.exception(e)
@@ -112,6 +117,7 @@ class DataValidation:
             ############################# Validate Number of Columns ############################################
             # and move them accordingly to "Good Data" and "Bad Data" dirs
             lg.info("Validating `number of columns` in raw training files..")
+            good_files = 0
             for csv_file in os.listdir(self.good_data_dir):
                 # reading each csv file as pandas dataframe
                 df = pd.read_csv(os.path.join(self.good_data_dir, csv_file))
@@ -123,11 +129,16 @@ class DataValidation:
                 else:
                     lg.info(
                         f'"{csv_file}" validated, staying in "Good Data" dir..')
+                    good_files += 1
+
+            lg.info(
+                f'Number of validated files based on "number of columns": {good_files}')
             lg.info("Check for expected number of columns completed with success!")
 
             ############################# Validate Columns' Names ###############################################
             # and move them accordingly to "Good Data" and "Bad Data" dirs
             lg.info("Validating `names of columns` in raw training files..")
+            good_files = 0
             for csv_file in os.listdir(self.good_data_dir):
                 # reading each csv file as pandas dataframe
                 df = pd.read_csv(os.path.join(self.good_data_dir, csv_file))
@@ -142,16 +153,20 @@ class DataValidation:
                 else:
                     lg.info(
                         f'"{csv_file}" validated, staying in "Good Data" dir..')
+                    good_files += 1
+            lg.info(
+                f'Number of validated files based on "names of columns": {good_files}')
             lg.info("Check for expected names of columns completed with success!")
 
             #################### See whether any Columns have all entries missing ###############################
             # and move them accordingly to "Good Data" and "Bad Data" dirs
             lg.info("Checking whether any of the columns has zero entries..")
+            good_files = 0
             for csv_file in os.listdir(self.good_data_dir):
                 lg.info(f"validating entries in {csv_file}'s columns..")
                 # reading each csv file as pandas dataframe
                 df = pd.read_csv(os.path.join(self.good_data_dir, csv_file))
-                for col in df.columns:
+                for i, col in enumerate(df.columns):
                     # implies a column has zero entries
                     if (len(df[col]) - df[col].count() == len(df[col])):
                         lg.warning(
@@ -159,6 +174,12 @@ class DataValidation:
                         shutil.move(os.path.join(self.good_data_dir,
                                     csv_file), self.bad_data_dir)
                         break
+                    
+                    if i == len(df.columns) - 1:
+                        lg.info(f'"{csv_file}" validated, staying in "Good Data" dir..')
+                        good_files += 1
+            lg.info(
+                f'Validated files based on "columns having all entries missing": {good_files}')
             lg.info("Check for columns' length completed with success!")
             ...
         except Exception as e:
@@ -185,7 +206,7 @@ class DataValidation:
             os.makedirs(self.archived_data_dir, exist_ok=True)
             lg.info("..said dirs created successfully!")
 
-            ######################### Fetch the relevants from the Provided Schema #############################
+            ######################## Fetch Expected Values from the provided Schema ############################
             schema_data = BasicUtils.read_json_file(
                 file_path=self.schema_path, file_desc=self.schema_desc)
             expected_len_of_datestamp = schema_data["LengthOfDateStampInFile"]

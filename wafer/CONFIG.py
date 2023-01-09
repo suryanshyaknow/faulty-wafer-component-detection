@@ -12,9 +12,10 @@ class DatabaseConfig:
     used in this project.
     """
     load_dotenv()
-    mongodb_url: str = os.getenv("MONGO_DB_URL")
-    database_name: str = "wafers"
-    collection_name: str = "training-batch"
+    mongodb_url = os.getenv("MONGO_DB_URL")
+    database_name = "wafers"
+    training_collection = "training-batches"
+    prediction_collection = "prediction-batches"
 
 
 @dataclass

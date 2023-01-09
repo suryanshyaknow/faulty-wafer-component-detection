@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import json
+import argparse
 from wafer.logger import lg
 from wafer.CONFIG import DatabaseConfig
 from wafer.entities.config import DataIngestionConfig
@@ -13,7 +14,7 @@ from dataclasses import dataclass
 
 @dataclass
 class DataIngestion:
-    """Shall be used for ingesting the validated data from `Good Raw Data` dir into MongoDB and 
+    """Shall be used for ingesting the validated data from "Good Data" dir into MongoDB and 
     even extract and readies the consequent feature store file once the ingestion's been done.
 
     Args:
@@ -47,16 +48,15 @@ class DataIngestion:
             db_ops = MongoDBOperations(
                 connection_string=self.database_config.mongodb_url,
                 database_name=self.database_config.database_name,
-                collection_name=self.database_config.collection_name)
+                collection_name=self.database_config.training_collection)
             lg.info(f"setup done with success!")
 
             if self.new_data:  # dump data to MongoDB only if there's new data
 
                 ####################### Fetch GoodRawData and Dump into MongoDB ####################################
-                lg.info(
-                    "fetching data from `GoodRawData` dir and dumping it into the database..")
+                lg.info('Fetching all validated data from "Good Data" dir..')
                 good_data_dir = self.data_validation_artifact.good_data_dir
-
+                all_records = []
                 for csv_file in os.listdir(good_data_dir):
                     # read dataframe with na_values as "null"
                     df = pd.read_csv(os.path.join(
@@ -64,15 +64,15 @@ class DataIngestion:
                     # rename the unnamed column to "Wafer"
                     df.rename(columns={"Unnamed: 0": "Wafer"}, inplace=True)
                     # convert the df into "dumpable into MongoDB" format --json
-                    all_records = list(json.loads(df.T.to_json()).values())
+                    data = list(json.loads(df.T.to_json()).values())
+                    all_records += data
                     lg.info(f"\"{csv_file}\" data fetched successfully!")
 
-                    db_ops.dumpData(records=all_records,
-                                    data_desc="validated Training data")
-                    lg.info(
-                        f"\"{csv_file}\"'s data dumped into the database with success!")
+                lg.info("..Records from all validated files fetched successfully!")
+                lg.info("Now, dumping all fetched records from all validated files into MongoDB database..")
+                db_ops.dumpData(records=all_records, data_desc="validated Training batches")    
                 lg.info(
-                    f"successfully dumped all data from `GoodRawData` dir into database {self.database_config.database_name}")
+                    f'successfully dumped all data from "Good Data" dir into database {self.database_config.database_name}')
 
             ################## Read data from Database and Prepare "Feature Store" set #########################
             lg.info('readying the "feature store" set..')
@@ -108,3 +108,16 @@ class DataIngestion:
         except Exception as e:
             lg.exception(e)
             raise e
+
+if __name__ == "__main__":
+    data_validation_artifact = DataValidationArtifact(
+        good_data_dir=r'artifacts\01072023__012253\data_validation\good_raw_data',
+        archived_data_dir=r'artifacts\01072023__012253\data_validation\archived_data')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data_validation_artifact", default=data_validation_artifact)
+    parser.add_argument("--new_data", default=False)
+    parsed_args = parser.parse_args()
+    data_ingestion = DataIngestion(
+        data_validation_artifact=parsed_args.data_validation_artifact, new_data=parsed_args.new_data)
+    data_ingestion.initiate()
