@@ -72,7 +72,7 @@ class MongoDBOperations:
                 f"looking for the collection \"{self.collection_name}\" in the database..")
             if self.collection_name in collections:
                 lg.info(
-                    f"collection found! selecting the collection {self.collection}..")
+                    f"collection found! selecting the collection {self.collection_name}..")
                 self.collection = self.database[self.collection_name]
                 lg.info("..said collection selected successfully!")
             else:
@@ -100,17 +100,17 @@ class MongoDBOperations:
             self.createOrselectCollection()
 
             lg.info(
-                f'dumping the "{data_desc}" to the collection "{self.collection_name}"..')
+                f'dumping the "{data_desc} data" to the collection "{self.collection_name}"..')
             self.collection.insert_many(records)
             ...
         except Exception as e:
             lg.exception(e)
             raise e
         else:
-            lg.info(f"dumped {data_desc} with success!")
+            lg.info(f'dumped "{data_desc} data" with success!')
 
     def getDataAsDataFrame(self) -> pd.DataFrame:
-        """This method prepares a feature-store-file out of all the data from the selecetd database.
+        """This method prepares a feature-store-file out of all the data from the selected database.
 
         Raises:
             e: Throws exception if any error pops up while loading data as dataframe from MongoDB's database.
@@ -131,6 +131,22 @@ class MongoDBOperations:
         else:
             lg.info("returning the extracted data as dataframe..")
             return df
+
+    def emptyCollection(self) -> None:
+        """Strips off the selected collection of selected MongoDB database of all records.
+
+        Raises:
+            e: Raises exception should any kinda error pops up while execution of this method.
+        """
+        try:
+            self.createOrselectCollection()
+            lg.info(f'Emptying the collection "{self.collection_name}" of database "{self.database_name}"..')
+            self.collection.delete_many({})
+            lg.info(f'..successfully emptied the collection "{self.collection_name}" of database "{self.database_name}"!')
+            ...
+        except Exception as e:
+            lg.exception(e)
+            raise e
 
 
 if __name__ == "__main__":
