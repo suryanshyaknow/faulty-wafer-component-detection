@@ -385,12 +385,14 @@ class BasicUtils:
         """
         try:
             # figure out the model's file
+            lg.info(f'finding the model built and trained for "Cluster {cluster}"..')
             models = os.listdir(model_dir)
             for model in models:
                 if model.startswith(f"{cluster}"):
                     model_file = model
             # Model's name
             mod_name = model_file.split(".")[0].split("_")[2]
+            lg.info(f'..model "{mod_name}" found successfully!')
             # Model's path from where model is to be fetched            
             model_path = os.path.join(model_dir, model_file)
             if not os.path.exists(model_path):

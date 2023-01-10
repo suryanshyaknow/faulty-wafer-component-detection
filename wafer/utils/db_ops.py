@@ -72,7 +72,7 @@ class MongoDBOperations:
                 f"looking for the collection \"{self.collection_name}\" in the database..")
             if self.collection_name in collections:
                 lg.info(
-                    f"collection found! selecting the collection {self.collection_name}..")
+                    f'collection found! selecting the collection" {self.collection_name}"..')
                 self.collection = self.database[self.collection_name]
                 lg.info("..said collection selected successfully!")
             else:
