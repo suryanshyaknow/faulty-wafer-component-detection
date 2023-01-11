@@ -1,7 +1,9 @@
+apache-airflow
 kneed
 matplotlib
-pandas
 numpy
+pandas
+pendulum
 pymongo
 python-dotenv
 PyYAML

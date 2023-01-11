@@ -1,0 +1,11 @@
+.logs
+.vscode
+artifacts
+notebooks
+prediction_artifacts
+prediction_batch_files
+predictions
+saved_models
+*egg-info
+.env
+README.md
