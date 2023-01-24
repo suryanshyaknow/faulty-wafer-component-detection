@@ -18,7 +18,7 @@ class DataIngestion:
     even extract and readies the consequent feature store file once the ingestion's been done.
 
     Args:
-        new_data (bool): Whether there's any new data for dumping into the desired realational dB. 
+        new_data (bool): Whether there's any new data for dumping into the desired relational dB. 
         Defaults to False.
     """
     lg.info(
