@@ -42,19 +42,17 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### <b>Prerequisites</b>
 
-This project requires the [Python](https://www.python.org/downloads/), [Pip-PyPI](https://pip.pypa.io/en/stable/installation/) and [Docker](https://www.docker.com/) installed.
-
-You will also need to have software installed to run and execute a [Jupyter Notebook](http://jupyter.org/install.html).
+This project requires the [Python](https://www.python.org/downloads/), [Pip-PyPI](https://pip.pypa.io/en/stable/installation/) and [Docker](https://www.docker.com/) installed. Apart from these, you do need to have an [AWS](https://aws.amazon.com/?nc2=h_lg) account to access the services like [Amazon ECR](https://aws.amazon.com/ecr/), [Amazon EC2](https://aws.amazon.com/ec2/?nc2=type_a), and [Amazon S3](https://aws.amazon.com/s3/).
 
 If you do not have Python installed yet, it is highly recommended that you install the [Anaconda](https://www.anaconda.com/download/) distribution of Python, which already has the above packages and more included.
 
-**NOTE:** All other dependencies will be installed when you'd get you virtual env ready and install the requirements present in the **requirements.txt** file.
+**NOTE:** All the other dependencies will be installed when you'd get your virtual env ready and install the requirements present in the **requirements.txt** file.
 
 ### <b>Installing</b>
 
 A step by step series of examples that tell you how to get the development env running.
 
-First and foremost, create a virtual environment,
+**i.** First and foremost, create a virtual environment,
 
 ```
 conda create -n hey_wafer python==3.7
@@ -66,19 +64,19 @@ conda create -n hey_wafer python==3.7
 conda activate hey_wafer
 ```
 
-Now, install the requirements for this project.
+**ii.** Now, install the requirements for this project.
 
 ```
 pip install -r requirements.txt
 ```
 
-Setup a database, now, in [MongoDB Atlas](https://www.mongodb.com/atlas/database) and copy the connection string from there, followed by creating a .env file in the development env. Then, create an env variable `MONGO_DB_URL` and assign the connection string to it.
+**iii.** Setup a database, now, in the [MongoDB Atlas](https://www.mongodb.com/atlas/database) and copy the connection string from there, followed by creating a `.env` file in the development env. Then, create an env variable `MONGO_DB_URL` into `.env` file assign the connection string to it.
 
 ```
 MONGO_DB_URL = <connection_string>
 ```
 
-Now to orchestrate and monitor the **machine learning pipelines/workflows**, run 
+**iv.** Now to orchestrate and monitor the **machine learning pipelines/workflows**, run 
 
 ```
 # The Standalone command will initialise the database, make a user,
@@ -88,7 +86,7 @@ airflow standalone
 ```
 ..followed by visiting `localhost:8080` in the browser. Can now use the admin account details shown on the terminal to login. 
 
-At the moment, you're good to run the training and prediction pipelines from the airflow UI as you desire.
+**v.** At the moment, you're good to run the training and prediction pipelines from the airflow UI as per the requirement.
 
 **NOTE:** If you are running the training pipeline for the very first time or there's some additional new data and you wish to retrain the pipline, go to `wafer/pipelines/training.py` and set the `new_data`=True in the **TrainingPipeline** class.
 
@@ -164,7 +162,7 @@ At the moment, you have to wait for the `Status check` of launch of this instanc
 
 <br>
 
-**vii.** Click on the `connect` button of the launched instance and the terminal will get open.
+**vi.** Click on the `connect` button of the launched instance and the terminal will get open.
 
 Now, in the terminal, execute the following commands, one at a time, to get the **Docker** up and running.
 
@@ -177,7 +175,7 @@ newgrp docker
 
 <br>
 
-**vi.** From the **runners** section in the **Actions settings** of your GitHub repo, create a new **linux** `self-hoster runner` and copy the commands from therein and execute them one by one in the EC2 instance terminal.
+**vii.** From the **runners** section in the **Actions settings** of your GitHub repo, create a new **linux** `self-hoster runner` and copy the commands from therein and execute them one by one in the EC2 instance terminal.
 
 **Download**
 
@@ -207,7 +205,8 @@ runs-on: self-hosted
 
 <br>
 
-**vii.** Now, at last, gather all those variabes that you were earlier asked to store securely -- **AWS_ACCESS_KEY_ID**, **AWS_SECRET_ACCESS_KEY**, **AWS_REGION**, **AWS_ECR_LOGIN_URI**, **ECR_REPOSITORY_NAME**, **BUCKET_NAME**, and at last but not the least, **MONGO_DB_URL** -- and add them as the **Secrets** in the `Actions Secrets and Variables` section of your GitHub repo. 
+**viii.** Now, at last, gather all those variabes that you were earlier asked to store securely -- **AWS_ACCESS_KEY_ID**, **AWS_SECRET_ACCESS_KEY**, **AWS_REGION**, **AWS_ECR_LOGIN_URI**, **ECR_REPOSITORY_NAME**, **BUCKET_NAME**, and at last but not the least, **MONGO_DB_URL** -- and add them as the **Secrets** in the `Actions Secrets and Variables` section of your GitHub repo. 
 
-With this, the deployment setup has ultimately been configured. You can now access the deployment link of this application which is the `Public IPv4 DNS` address of the said EC2 instance. 
+With this, the deployment setup has ultimately been configured. You can now access the deployment link of this application which is the `Public IPv4 DNS` address of the said EC2 instance.
 
+---
