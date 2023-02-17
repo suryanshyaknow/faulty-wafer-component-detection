@@ -9,7 +9,7 @@ with DAG(
     default_args={'retries': 2},
     description='wafer-fault-detection',
     schedule_interval="@weekly",
-    start_date=pendulum.datetime(2023, 1, 12, tz="UTC"),
+    start_date=pendulum.datetime(2023, 2, 17, tz="UTC"),
     catchup=False,
     tags=['training_pipeline']
 ) as dag:
